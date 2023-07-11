@@ -8,9 +8,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class FacultyController {
@@ -23,5 +26,10 @@ public class FacultyController {
         var facultyModel = new FacultyModel();
         BeanUtils.copyProperties(facultyRecordDto, facultyModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(facultyRepository.save(facultyModel));
+    }
+
+    @GetMapping("/faculties")
+    public ResponseEntity<List<FacultyModel>> getAllFaculties() {
+        return ResponseEntity.status(HttpStatus.OK).body(facultyRepository.findAll());
     }
 }

@@ -27,4 +27,10 @@ public class CityController {
         BeanUtils.copyProperties(cityRecordDto, cityModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(cityRepository.save(cityModel));
     }
+
+    @GetMapping("/cities")
+    public ResponseEntity<List<CityModel>> getAllCities() {
+        return ResponseEntity.status(HttpStatus.OK).body(cityRepository.findAll());
+    }
+
 }
