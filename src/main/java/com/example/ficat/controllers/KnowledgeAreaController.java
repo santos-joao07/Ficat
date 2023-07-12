@@ -8,12 +8,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 public class KnowledgeAreaController {
@@ -31,5 +30,14 @@ public class KnowledgeAreaController {
     @GetMapping("/knowledgeAreas")
     public ResponseEntity<List<KnowledgeAreaModel>> getAllKnowledgeAreas() {
         return ResponseEntity.status(HttpStatus.OK).body(knowledgeAreaRepository.findAll());
+    }
+
+    @GetMapping("/knowledgeAreas/{id}")
+    public ResponseEntity<Object> getOneKnowledgeArea(@PathVariable(value="id")UUID id) {
+        Optional<KnowledgeAreaModel> knowledgeArea0 = knowledgeAreaRepository.findById(id);
+        if (knowledgeArea0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Área deconhecimento não encontrada");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(knowledgeArea0.get());
     }
 }

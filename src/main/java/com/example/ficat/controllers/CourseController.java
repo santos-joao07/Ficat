@@ -8,12 +8,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 public class CourseController {
@@ -31,6 +30,15 @@ public class CourseController {
     @GetMapping("/courses")
     public ResponseEntity<List<CourseModel>> getAllCourses() {
         return ResponseEntity.status(HttpStatus.OK).body(courseRepository.findAll());
+    }
+
+    @GetMapping("/courses/{id}")
+    public ResponseEntity<Object> getOneCourse(@PathVariable(value="id")UUID id) {
+        Optional<CourseModel> course0 = courseRepository.findById(id);
+        if(course0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Curso não encontrado");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(course0.get());
     }
 
 }

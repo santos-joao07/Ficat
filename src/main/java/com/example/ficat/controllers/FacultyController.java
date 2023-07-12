@@ -8,12 +8,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 public class FacultyController {
@@ -31,5 +30,14 @@ public class FacultyController {
     @GetMapping("/faculties")
     public ResponseEntity<List<FacultyModel>> getAllFaculties() {
         return ResponseEntity.status(HttpStatus.OK).body(facultyRepository.findAll());
+    }
+
+    @GetMapping("faculties/{id}")
+    public ResponseEntity<Object> getOneFaculty(@PathVariable(value="id")UUID id) {
+        Optional<FacultyModel> faculty0 = facultyRepository.findById(id);
+        if(faculty0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Faculdade não encotrada");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(faculty0.get());
     }
 }
