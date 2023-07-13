@@ -4,6 +4,7 @@ import com.example.ficat.dtos.KnowledgeAreaRecordDto;
 import com.example.ficat.models.KnowledgeAreaModel;
 import com.example.ficat.repositories.KnowledgeAreaRepository;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,5 +40,27 @@ public class KnowledgeAreaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Área deconhecimento não encontrada");
         }
         return ResponseEntity.status(HttpStatus.OK).body(knowledgeArea0.get());
+    }
+
+    @PutMapping("/knowledgeAreas/{id}")
+    public ResponseEntity<Object> updateKnowledgeArea(@PathVariable(value="id")UUID id,
+                                                      @RequestBody @Valid KnowledgeAreaRecordDto knowledgeAreaRecordDto) {
+        Optional<KnowledgeAreaModel> knowledgeArea0 = knowledgeAreaRepository.findById(id);
+        if(knowledgeArea0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Área de conhecimento não encontrada");
+        }
+        var knowledgeAreaModel = knowledgeArea0.get();
+        BeanUtils.copyProperties(knowledgeAreaRecordDto, knowledgeAreaModel);
+        return ResponseEntity.status(HttpStatus.OK).body(knowledgeAreaRepository.save(knowledgeAreaModel));
+    }
+
+    @DeleteMapping("knowledgeAreas/{id}")
+    public ResponseEntity<Object> deleteKnowledgeArea(@PathVariable(value="id")UUID id) {
+        Optional<KnowledgeAreaModel> knowledgeArea0 = knowledgeAreaRepository.findById(id);
+        if(knowledgeArea0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Área de conhecimento não encontrada");
+        }
+        knowledgeAreaRepository.delete(knowledgeArea0.get()  );
+        return ResponseEntity.status(HttpStatus.OK).body("Área de conhecimento deletada com sucesso");
     }
 }

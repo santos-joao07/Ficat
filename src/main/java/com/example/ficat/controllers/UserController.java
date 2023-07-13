@@ -4,6 +4,7 @@ import com.example.ficat.dtos.UserRecordDto;
 import com.example.ficat.models.UserModel;
 import com.example.ficat.repositories.UserRepository;
 import jakarta.validation.Valid;
+import org.apache.catalina.User;
 import org.apache.coyote.Response;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,28 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
         }
         return ResponseEntity.status(HttpStatus.OK).body(user0.get());
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<Object> updateUser(@PathVariable(value="id") UUID id,
+                                             @RequestBody @Valid UserRecordDto userRecordDto) {
+        Optional<UserModel> user0 = userRepository.findById(id);
+        if(user0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+        }
+        var userModel = user0.get();
+        BeanUtils.copyProperties(userRecordDto, userModel);
+        return ResponseEntity.status(HttpStatus.OK).body(userRepository.save(userModel));
+    }
+
+    @DeleteMapping("users/{id}")
+    public ResponseEntity<Object> deleteUser(@PathVariable(value="id")UUID id) {
+        Optional<UserModel> user0 = userRepository.findById(id);
+        if(user0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+        }
+        userRepository.delete((user0.get()));
+        return ResponseEntity.status(HttpStatus.OK).body("Usuário deletado com sucesso");
     }
 
 }

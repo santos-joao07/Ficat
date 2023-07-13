@@ -4,6 +4,7 @@ import com.example.ficat.dtos.CourseRecordDto;
 import com.example.ficat.models.CourseModel;
 import com.example.ficat.repositories.CourseRepository;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,5 +41,28 @@ public class CourseController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(course0.get());
     }
+
+    @PutMapping("/courses/{id}")
+    public ResponseEntity<Object> updateCourse(@PathVariable(value="id")UUID id,
+                                               @RequestBody @Valid CourseRecordDto courseRecordDto) {
+        Optional<CourseModel> course0 = courseRepository.findById(id);
+        if(course0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Curso não encotrado");
+        }
+        var courseModel = course0.get();
+        BeanUtils.copyProperties(courseRecordDto, courseModel);
+        return ResponseEntity.status(HttpStatus.OK).body(courseRepository.save(courseModel));
+    }
+
+    @DeleteMapping("/courses/{id}")
+    public ResponseEntity<Object> deleteCourse(@PathVariable(value="id")UUID id) {
+        Optional<CourseModel> course0 = courseRepository.findById(id);
+        if(course0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Curso não encontrado");
+        }
+        courseRepository.delete(course0.get());
+        return ResponseEntity.status(HttpStatus.OK).body("Curso deletado com sucesso");
+    }
+
 
 }

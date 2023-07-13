@@ -40,4 +40,26 @@ public class FacultyController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(faculty0.get());
     }
+
+    @PutMapping("/faculties/{id}")
+    public ResponseEntity<Object> updateFaculty(@PathVariable(value="id")UUID id,
+                                                @RequestBody @Valid FacultyRecordDto facultyRecordDto) {
+        Optional<FacultyModel> faculty0 = facultyRepository.findById(id);
+        if(faculty0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Faculdade não encontrada");
+        }
+        var facultyModel = faculty0.get();
+        BeanUtils.copyProperties(facultyRecordDto, facultyModel);
+        return ResponseEntity.status(HttpStatus.OK).body(facultyRepository.save(facultyModel));
+    }
+
+    @DeleteMapping("/faculties/{id}")
+    public ResponseEntity<Object> deleteFaculty(@PathVariable("id")UUID id) {
+        Optional<FacultyModel> faculty0 = facultyRepository.findById(id);
+        if(faculty0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Faculdade não encontrada");
+        }
+        facultyRepository.delete(faculty0.get());
+        return ResponseEntity.status(HttpStatus.OK).body("Faculdade deletada com sucesso");
+    }
 }

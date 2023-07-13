@@ -42,4 +42,26 @@ public class CityController {
         return ResponseEntity.status(HttpStatus.OK).body(city0.get());
     }
 
+    @PutMapping("/cities/{id}")
+    public ResponseEntity<Object> updateCity(@PathVariable(value="id") UUID id,
+                                             @RequestBody @Valid CityRecordDto cityRecordDto) {
+        Optional<CityModel> city0 = cityRepository.findById(id);
+        if(city0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cidade não encontrada");
+        }
+        var cityModel = city0.get();
+        BeanUtils.copyProperties(cityRecordDto, cityModel);
+        return ResponseEntity.status(HttpStatus.OK).body(cityRepository.save(cityModel));
+    }
+
+    @DeleteMapping("/cities/{id}")
+    public ResponseEntity<Object> deleteCity(@PathVariable(value="id")UUID id) {
+        Optional<CityModel> city0 = cityRepository.findById(id);
+        if(city0.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cidade não encontrada");
+        }
+        cityRepository.delete(city0.get());
+        return ResponseEntity.status(HttpStatus.OK).body("Cidade deletada com sucesso");
+    }
+
 }
