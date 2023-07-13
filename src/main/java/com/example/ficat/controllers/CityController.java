@@ -9,6 +9,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +24,15 @@ public class CityController {
     CityRepository cityRepository;
 
     @PostMapping("/cities")
-    public ResponseEntity<CityModel> saveCity(@RequestBody @Valid CityRecordDto cityRecordDto) {
+    public ResponseEntity<?> saveCity(@RequestBody @Valid CityRecordDto cityRecordDto, BindingResult bindingResult) {
+        ResponseEntity<?> errorMessage = ErrorController.getResponseEntity(bindingResult);
+        if (errorMessage != null) return errorMessage;
+
+        if (cityRepository.existsByName(cityRecordDto.name())) {
+            String nameDuplicated = "O nome da cidade já existe";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(nameDuplicated);
+        }
+
         var cityModel = new CityModel();
         BeanUtils.copyProperties(cityRecordDto, cityModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(cityRepository.save(cityModel));

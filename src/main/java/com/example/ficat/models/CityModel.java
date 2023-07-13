@@ -13,6 +13,7 @@ public class CityModel implements Serializable {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private UUID idCity;
+    @Column(unique = true)
     private String name;
 
     public UUID getIdCity() {

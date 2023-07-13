@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,20 @@ public class AcademicUnityController {
     AcademicUnityRepository academicUnityRepository;
 
     @PostMapping("/academicUnities")
-    public ResponseEntity<AcademicUnityModel> saveAcademicUnity(@RequestBody @Valid AcademicUnityRecordDto academicUnityRecordDto) {
+    public ResponseEntity<?> saveAcademicUnity(@RequestBody @Valid AcademicUnityRecordDto academicUnityRecordDto, BindingResult bindingResult) {
+        ResponseEntity<?> errorMessage = ErrorController.getResponseEntity(bindingResult);
+        if (errorMessage != null) return errorMessage;
+
+        if (academicUnityRepository.existsByName(academicUnityRecordDto.name())) {
+            String nameDuplicated = "O nome do instituto já existe";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(nameDuplicated);
+        }
+
+        if (academicUnityRepository.existsByAcronym(academicUnityRecordDto.acronym())) {
+            String nameDuplicated = "A sigla do instituto já existe";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(nameDuplicated);
+        }
+
         var academicUnityModel = new AcademicUnityModel();
         BeanUtils.copyProperties(academicUnityRecordDto, academicUnityModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(academicUnityRepository.save(academicUnityModel));

@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -27,7 +29,15 @@ public class UserController {
     PasswordEncoder encoder;
 
     @PostMapping("/users")
-    public ResponseEntity<UserModel> saveUser(@RequestBody @Valid UserRecordDto userRecordDto) {
+    public ResponseEntity<?> saveUser(@RequestBody @Valid UserRecordDto userRecordDto, BindingResult bindingResult) {
+        ResponseEntity<?> errorMessage = ErrorController.getResponseEntity(bindingResult);
+        if (errorMessage != null) return errorMessage;
+
+        if (userRepository.existsByName(userRecordDto.name())) {
+            String nameDuplicated = "O nome de usuário já existe";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(nameDuplicated);
+        }
+
         var userModel = new UserModel();
         BeanUtils.copyProperties(userRecordDto, userModel);
         userModel.setPassword(encoder.encode(userModel.getPassword()));
